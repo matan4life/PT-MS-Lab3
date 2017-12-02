@@ -1,0 +1,37 @@
+<html>
+    <head>
+        <title>Lab3</title>
+        <link href="style.css" rel="stylesheet" />
+    </head>
+    <body>
+        <header>
+            <p class="header">Лабораторная №3. Построение графиков распределения случайных величин</p>
+        </header>
+        <div id = "values_div" align = "center">
+        Равномерное: <input type="radio" name="" id="1" onclick="CheckRadio('1')" />
+        Экспоненциальное: <input type="radio" name="" id="2" onclick="CheckRadio('2')" />
+        Гаусса-Лапласа(нормальное): <input type="radio" name="" id="3" onclick="CheckRadio('3')"/>
+        Хи-квадрат: <input type="radio" name="" id="4" onclick="CheckRadio('4')" />
+        Стьюдента: <input type="radio" name="" id="5" onclick="CheckRadio('5')" />
+        Фишера: <input type="radio" name="" id="6" onclick="CheckRadio('6')" />
+        Зиккуратыч: <input type="radio" name="" id="7" onclick="CheckRadio('7')" />
+            <br />
+        Границы диапазона:
+        a: <input type="number" name="n" value="0" id = "a">
+        b: <input type="number" name="n" value="1" id = "b">
+        λ: <input type="number" name="n" value="1" id="c">
+        k1: <input type="number" name="n" value="1" id="d" />
+        k2: <input type="number" name="n" value="1" id="e" />
+        <br>
+        <button onclick="Drawgraphic()">Кудахтер, рисуй</button>
+            <button onclick="Clearcanvas()">Кудахтер, очисть</button>
+        </div>
+        <div id = "canvas_div" align = "center">
+            <canvas id="canvas" width='1300' height="500"></canvas>
+            <script src="Script.js"></script>
+        </div>
+        <footer>
+            <p class="footer">Made by Yurii Pohuliaiev & HVH, 2 term, autumn 2017</p>
+        </footer>
+    </body>
+</html>
