@@ -1,12 +1,19 @@
 <html>
     <head>
+        <meta charset="UTF-8" />
+        <meta name='language' content='RU'>
         <title>Lab3</title>
+        <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <link href="style.css" rel="stylesheet" />
     </head>
     <body>
         <header>
             <p class="header">Лабораторная №3. Построение графиков распределения случайных величин</p>
         </header>
+        <div id="func" align="center">
+            <p><input type="radio" id="f1" onclick="Nigga('f1')"/>Интегральный функцыч</p>
+            <p><input type="radio" id="f2" onclick="Nigga('f2')"/>Дифференциальный функцыч</p>
+        </div>
         <div id = "values_div" align = "center">
         Равномерное: <input type="radio" name="" id="1" onclick="CheckRadio('1')" />
         Экспоненциальное: <input type="radio" name="" id="2" onclick="CheckRadio('2')" />
@@ -22,13 +29,70 @@
         λ: <input type="number" name="n" value="1" id="c">
         k1: <input type="number" name="n" value="1" id="d" />
         k2: <input type="number" name="n" value="1" id="e" />
+        size : <input type="number" name="n" value="1" id="f" />
+        μ: <input type="number" name="n" value="1" id="g" />
+        σ: <input type="number" name="n" value="1" id="h" />
         <br>
         <button onclick="Drawgraphic()">Кудахтер, рисуй</button>
-            <button onclick="Clearcanvas()">Кудахтер, очисть</button>
+        <button onclick="Clearcanvas()">Кудахтер, очисть</button>
+        <button onclick="Compare(+(document.getElementById('f').value))">Кудахтер, сравни</button>
+        <p class ="stat" id="me">Математическое ожидание: </p>
+        <p class ="stat" id="va">Дисперсия: </p>
+        <p class ="stat" id="sig">Среднеквадратическое отклонение: </p>
         </div>
         <div id = "canvas_div" align = "center">
             <canvas id="canvas" width='1300' height="500"></canvas>
             <script src="Script.js"></script>
+        </div>
+        <div id="formulas" align="center">
+            <div id="unif" class="formula">
+                <p>Функция распределения: $${F(x) } = \begin {cases} {0}, & {x \lt a} \\ { x-a \over b-a}, & {a \le x \le b} \\ {1}, & {x \gt b}  \end {cases} $$</p>
+                <p>Функция плотности: $${f(x) } = \begin {cases} {0}, & {x \lt a , x \gt b} \\ { 1 \over b-a}, & {a \le x \le b} \end {cases}$$</p>
+                <p>Параметры: $${a, b} - \text {границы отрезка}.$$ </p>
+                <p>Мат.ожидание: $${M[X]} = {a+b \over 2}$$</p>
+                <p>Дисперсия: $${D[X]} = {(b-a)^2 \over 12}$$</p>
+                <p>Среднеквадратическое отклонение: $$ {σ} = {b-a \over 2\sqrt{3}}$$</p>
+            </div>
+            <div id="exp" class="formula">
+                <p>Функция распределения: $${F(x) } = \begin {cases} {0}, & {x \lt 0} \\ {1-e^{-λx}}, & {x \ge 0} \end {cases} $$</p>
+                <p>Функция плотности: $${f(x) } = \begin {cases} {0}, & {x \lt 0} \\ {λe^{-λx}}, & {x \ge 0} \end {cases}$$</p>
+                <p>Параметр: $${λ} - \text {обратный коэффициент масштаба}.$$ </p>
+                <p>Мат.ожидание: $${M[X]} = {λ^{-1}}$$</p>
+                <p>Дисперсия: $${D[X]} = {λ^{-2}}$$</p>
+                <p>Среднеквадратическое отклонение: $${σ} = {λ^{-1}}$$</p>
+            </div>
+            <div id="norm" class="formula">
+                <p>Функция распределения: $${F(x) } = {1 \over 2} {\left[1+erf\left(x-μ \over \sqrt{2σ^2} \right)\right]}$$</p>
+                <p>Функция плотности: $${f(x) } = {1 \over σ\sqrt{2π}} {e^{{-}{(x-μ)^2 \over 2σ^2}}}$$</p>
+                <p>Параметры: $${μ} - \text {коэффициент сдвига (математическое ожидание)}, {σ} - \text {коэффициент масштаба (среднеквадратическое отклонение)}.$$ </p>
+                <p>Мат.ожидание: $${M[X]} = {μ}$$</p>
+                <p>Дисперсия: $${D[X]} = {σ^2}$$</p>
+                <p>Среднеквадратическое отклонение: $${σ} = {σ}$$</p>
+            </div>
+            <div id="khi" class="formula">
+                <p>Функция распределения: $${F(x) } = {γ(k/2, x/2) \over Γ(k/2)}$$</p>
+                <p>Функция плотности: $${f(x) } = {(1/2)^{k/2} \over Γ(k/2)} {x^{k/2-1}e^{-x/2}}$$</p>
+                <p>Параметр: $${k} - \text {число степеней свободы}.$$ </p>
+                <p>Мат.ожидание: $${M[X]} = {k}$$</p>
+                <p>Дисперсия: $${D[X]} = {2k}$$</p>
+                <p>Среднеквадратическое отклонение: $${σ} = {\sqrt{2k}}$$</p>
+            </div>
+            <div id="stu" class="formula">
+                <p>Функция распределения: $${F(t) } = {1 \over 2} + {t}{Γ\left({1 \over 2}\left(n+1\right)\right) \over {\sqrt{nπ} Γ({n \over 2}})} {_2 F_1 \left ({1 \over 2}, {1 \over 2}{\left(n+1\right)}, {3 \over 2}, {-}{x^2 \over n} \right) }$$</p>
+                <p>Функция плотности: $${f(t) } = {Γ({n+1 \over 2}) \over \sqrt{nπ} Γ({n \over 2}) (1+{x^2 \over n})^{n+1 \over 2}}$$</p>
+                <p>Параметр: $${n} - \text {число степеней свободы}.$$ </p>
+                <p>Мат.ожидание: $${M[T]} = {0, n \gt 1}$$</p>
+                <p>Дисперсия: $${D[T]} = {n \over n-2}, {n \gt 2}$$</p>
+                <p>Среднеквадратическое отклонение: $${σ} = {\sqrt{n \over n-2}}, {n \gt 2}$$</p>
+            </div>
+            <div id="fish" class="formula">
+                <p>Функция распределения: $${F(x) } = {I_{d_1 x \over d_1 x +d_2} \left({d_1 \over 2}, {d_2 \over 2}\right)}$$</p>
+                <p>Функция плотности: $${f(x) } = {\sqrt {(d_1 x)^{d_1} d_2^{d_2} \over (d_1 x + d_2)^{d_1+d_2}} \over x Β\left({d_1 \over 2}, {d_2 \over 2}\right)}$$</p>
+                <p>Параметры: $${d_1, d_2} - \text {числа степеней свободы}.$$ </p>
+                <p>Мат.ожидание: $${M[X]} = {d_2 \over d_2-2}, {d_2 \gt 2}$$</p>
+                <p>Дисперсия: $${D[X]} = {2d_2^2(d_1+d_2-2) \over d_1(d_2-2)^2 (d_2-4)}, {d_2 \gt 2}$$</p>
+                <p>Среднеквадратическое отклонение: $${σ} = {d_2 \over d_2-2}{\sqrt{2(d_1+d_2-2) \over d_1(d_2-4)}}, {n \gt 2}$$</p>
+            </div>
         </div>
         <footer>
             <p class="footer">Made by Yurii Pohuliaiev & HVH, 2 term, autumn 2017</p>

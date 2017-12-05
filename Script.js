@@ -1,5 +1,87 @@
 // JavaScript source code
+var stairWidth = [];
+var stairHeight = [];
+var x1 = 3.6541528853610088;
+var A = 4.92867323399e-3;
+class Ziga {
+    constructor() {
 
+    }
+    setupNormalTables() {
+        stairHeight[0] = Math.exp(-.5 * x1, x1);
+        stairWidth[0] = A / stairHeight[0];
+        stairWidth[256] = 0;
+        for (let i = 1; i <= 255; ++i) {
+            stairWidth[i] = Math.sqrt(-2 * Math.log(stairHeight[i - 1]));
+            stairHeight[i] = stairWidth[i - 1] + A / stairWidth[i];
+        }
+    }
+    Zigguratich() {
+        let iter = 0;
+        do {
+            let B = UniformDistribution(-65536, 65535, 1)[0];
+            let stairId = B & 255;
+            let x = UniformDistribution(0, stairWidth[stairId], 1)[0];
+            if (x < stairWidth[stairId + 1]) {
+                return B > 0 ? x : -x;
+            }
+            if (stairId == 0) {
+                let z = -1;
+                let y;
+                if (z > 0) {
+                    x = ExponentialDistribution(x1, 1)[0];
+                    z -= 0.5 * x * x;
+                }
+                if (z <= 0) {
+                    do {
+                        x = ExponentialDistribution(x1, 1)[0];
+                        y = ExponentialDistribution(1, 1)[0];
+                        z = y - 0.5 * x * x;
+                    } while (z<=0)
+                }
+                x += x1;
+                return B > 0 ? x : -x;
+            }
+            if (UniformDistribution(stairHeight[stairId - 1], stairHeight[stairId], 1)[0] < Math.exp(-.5 * x * x)) {
+                return B > 0 ? x : -x;
+            }
+        } while (++iter <= 1e9)
+        return NaN;
+    }
+}
+function CreateZiggurat(size, mu, sigma) {
+    let zig = new Ziga();
+    let x = [];
+    zig.setupNormalTables();
+    for (let i = 0; i < size; i++) {
+        x.push(zig.Zigguratich()*sigma+mu);
+    }
+    return x.sort((a, b) => a - b);
+}
+function Compare(size) {
+    var dat1 = performance.now();
+    var x = Gauss(size, 0, 1);
+    var dat2 = performance.now();
+    var res1 = dat2 - dat1;
+    var dat1 = performance.now();
+    var x = CreateZiggurat(size);
+    var dat2 = performance.now();
+    var res2 = dat2 - dat1;
+    if (res1 > res2) {
+        alert("Box-Muller was slower!" + "\n" + "Box-Muller: " + res1 + " ms" + "\n" + "Ziggurat: " + res2 + " ms");
+    }
+    else if (res1 < res2) {
+        alert("Ziggurat was slower!" + "\n" + "Box-Muller: " + res1 + " ms" + "\n" + "Ziggurat: " + res2 + " ms");
+    }
+    else {
+        alert("Equal!" + "\n" + "Box-Muller: " + res1 + " ms" + "\n" + "Ziggurat: " + res2 + " ms");
+    }
+}
+function Nigga(id) {
+    document.getElementById("f1").checked = false;
+    document.getElementById("f2").checked = false;
+    document.getElementById(id).checked = true;
+}
 function CheckRadio(id) {
     document.getElementById("1").checked = false;
     document.getElementById("2").checked = false;
@@ -7,7 +89,32 @@ function CheckRadio(id) {
     document.getElementById('4').checked = false;
     document.getElementById('5').checked = false;
     document.getElementById('6').checked = false;
+    document.getElementById('7').checked = false;
     document.getElementById(id).checked = true;
+    Formulas(id);
+}
+function Formulas(id) {
+    for (let elem of document.getElementById('formulas').children) {
+        elem.style.display = 'none';
+    }
+    if (id == "1") {
+        document.getElementById('unif').style.display = 'block';
+    }
+    else if (id == "2") {
+        document.getElementById('exp').style.display = 'block';
+    }
+    else if (id == "3" || id=="7") {
+        document.getElementById('norm').style.display = 'block';
+    }
+    else if (id == "4") {
+        document.getElementById('khi').style.display = 'block';
+    }
+    else if (id == "5") {
+        document.getElementById('stu').style.display = 'block';
+    }
+    else if (id == "6") {
+        document.getElementById('fish').style.display = 'block';
+    }
 }
 function Gauss_Density(x) {
     let res = [];
@@ -33,9 +140,16 @@ function UniformDistribution_DistibutionFunction(list, a, b) {
     }
     return y;
 }
-function ExponentialDistribution(lambda) {
+function Uniform_Density(list, a, b) {
+    let y = [];
+    for (let elem of list) {
+        y.push(1/(b-a));
+    }
+    return y;
+}
+function ExponentialDistribution(lambda, size) {
     let x = [];
-    let list = UniformDistribution(0, 1, 20000);
+    let list = UniformDistribution(0, 1, size);
     for (let elem of list) {
         let tmp = Math.log(1 - elem) / (-lambda);
         x.push(tmp);
@@ -50,23 +164,31 @@ function ExponentialDistribution_DistributionFunction(list, lambda) {
     }
     return y;
 }
-function Gauss_Laplas_Distribution() {
-    do {
-        var un = [1 - Math.random(), 1 - Math.random()];
-        var x1 = Math.cos(2 * Math.PI * un[1]) * Math.sqrt(-2 * Math.log(un[0]));
-        var x2 = Math.sin(2 * Math.PI * un[1]) * Math.sqrt(-2 * Math.log(un[0]));
-        var templist = [x1, x2];
-
-    } while (Math.abs(Math_Expectation(templist, Gauss_Density(templist)))>0.001)
+function Exp_Density(list, lambda) {
+    let y = [];
+    for (let elem of list) {
+        y.push(lambda * Math.exp(-lambda * elem));
+    }
+    return y;
+}
+function Gauss_Laplas_Distribution(mu, sigma) {
+    if (mu == undefined) mu = 0;
+    if (sigma == undefined) sigma = 1;
+    var un = [1 - Math.random(), 1 - Math.random()];
+    var x1 = Math.cos(2 * Math.PI * un[1]) * Math.sqrt(-2 * Math.log(un[0]));
+    var x2 = Math.sin(2 * Math.PI * un[1]) * Math.sqrt(-2 * Math.log(un[0]));
+    x1 = mu + sigma * x1;
+    x2 = mu + sigma * x2;
+    var templist = [x1, x2];  
     return templist;
 }
-function Gauss(max) {
+function Gauss(max, mu, sigma) {
     let x = [];
     if (max % 2 == 1) {
-        x.push(Gauss_Laplas_Distribution()[0]);
+        x.push(Gauss_Laplas_Distribution(mu, sigma)[0]);
     }
     for (let i = 1; i <= max / 2; i++) {
-        let tmp = Gauss_Laplas_Distribution();
+        let tmp = Gauss_Laplas_Distribution(mu, sigma);
         x.push(tmp[0], tmp[1]);
     }
     //alert(Math_Expectation(x, Gauss_Density(x)));
@@ -110,14 +232,14 @@ function Khi_Square_Distribution(k, max) {
     for (let i = 1; i <= max; i++) {
         if (k == 1) {
             if (i % 2 == 0) {
-                x.push(Math.pow(Gauss_Laplas_Distribution()[0], 2));
+                x.push(Math.pow(Gauss_Laplas_Distribution(0, 1)[0], 2));
             }
             else {
-                x.push(Math.pow(Gauss_Laplas_Distribution()[1], 2));
+                x.push(Math.pow(Gauss_Laplas_Distribution(0, 1)[1], 2));
             }
         }
         else {
-            let gauss_laplas = Gauss(k);
+            let gauss_laplas = Gauss(k, 0, 1);
             let khi_square = 0;
             for (let elem of gauss_laplas) {
                 khi_square += Math.pow(elem, 2);
@@ -192,12 +314,14 @@ function Khi_Square_Distribution_Distribution_Function(list, k) {
     }
     return y;
 }
-function Math_Expectation(x, y) {
-    let res = 0;
-    for (let i = 0; i < x.length; i++) {
-        res += x[i] * y[i];
+function Khi_Density(list, k) {
+    let y = [];
+    for (let elem of list) {
+        let a = Math.pow(0.5, k / 2) * Math.pow(elem, k / 2 - 1) * Math.exp(-elem/2);
+        let b = Gamma_Lanczos(k / 2);
+        y.push(a / b);
     }
-    return res;
+    return y;
 }
 function Allzero(x) {
     for (let elem of x) {
@@ -219,19 +343,19 @@ function Student_Distribution(k) {
     if (k == 1) {
         for (let i = 0; i < 20000; i++) {
             if (i % 2 == 0) {
-                x.push(Gauss_Laplas_Distribution()[0]);
+                x.push(Gauss_Laplas_Distribution(0, 1)[0]);
             }
             else {
-                x.push(Gauss_Laplas_Distribution()[1]);
+                x.push(Gauss_Laplas_Distribution(0, 1)[1]);
             }
         }
     }
     else {
         for (let i = 0; i < 20000; i++) {
             do {
-                var numerator = i % 2 ? Gauss_Laplas_Distribution()[0] : Gauss_Laplas_Distribution()[1];
+                var numerator = i % 2 ? Gauss_Laplas_Distribution(0, 1)[0] : Gauss_Laplas_Distribution(0, 1)[1];
                 var denominator = 0;
-                let temp = Gauss(k - 1);
+                let temp = Gauss(k - 1, 0, 1);
                 for (let elem of temp) {
                     denominator += Math.pow(elem, 2);
                 }
@@ -320,6 +444,15 @@ function Student_Distribution_Distribution_Function(x, k) {
     }
     return y;
 }
+function Student_Density(x, k) {
+    let y = [];
+    for (let elem of x) {
+        let numerator = Gamma_Lanczos((k + 1) / 2);
+        let denominator = Math.sqrt(k * Math.PI) * Gamma_Lanczos(k / 2) * Math.pow(1 + elem * elem / k, (k + 1) / 2);
+        y.push(numerator / denominator);
+    }
+    return y;
+}
 function Fisher_Distribution(d1, d2) {
     let x = [];
     for (let i = 0; i < 20000; i++) {
@@ -351,105 +484,73 @@ function Fisher_Function(list, d1, d2) {
     }
     return y;
 }
-function Ziggurat() {
-
-    var jsr = 123456789;
-
-    var wn = Array(128);
-    var fn = Array(128);
-    var kn = Array(128);
-
-    function RNOR() {
-        var hz = SHR3();
-        var iz = hz & 127;
-        return (Math.abs(hz) < kn[iz]) ? hz * wn[iz] : nfix(hz, iz);
+function Fisher_Density(list, d1, d2) {
+    let y = [];
+    for (let elem of list) {
+        let numerator = Math.sqrt(Math.pow(d1 * elem, d1) * Math.pow(d2, d2) / Math.pow(d1 * elem + d2, d1 + d2));
+        let denominator = elem * Beta_Function(d1 / 2, d2 / 2);
+        y.push(numerator / denominator);
     }
-
-    this.nextGaussian = function () {
-        return RNOR();
+    return y;
+}
+function $(id) {
+    return document.getElementById(id);
+}
+function Math_Expectation(distr) {
+    if (distr == "uniform") {
+        return ($('a').valueAsNumber + $('b').valueAsNumber) / 2;
     }
-
-    function nfix(hz, iz) {
-        var r = 3.442619855899;
-        var r1 = 1.0 / r;
-        var x;
-        var y;
-        while (true) {
-            x = hz * wn[iz];
-            if (iz == 0) {
-                x = (-Math.log(UNI()) * r1);
-                y = -Math.log(UNI());
-                while (y + y < x * x) {
-                    x = (-Math.log(UNI()) * r1);
-                    y = -Math.log(UNI());
-                }
-                return (hz > 0) ? r + x : -r - x;
-            }
-
-            if (fn[iz] + UNI() * (fn[iz - 1] - fn[iz]) < Math.exp(-0.5 * x * x)) {
-                return x;
-            }
-            hz = SHR3();
-            iz = hz & 127;
-
-            if (Math.abs(hz) < kn[iz]) {
-                return (hz * wn[iz]);
-            }
+    else if (distr == "exponential") {
+        return Math.pow($('c').valueAsNumber, -1);
+    }
+    else if (distr == "normal") {
+        return $('g').valueAsNumber;
+    }
+    else if (distr == "khi") {
+        return $('d').valueAsNumber;
+    }
+    else if (distr == "stu") {
+        if ($('d').valueAsNumber > 1) {
+            return 0;
         }
+        return NaN;
     }
-
-    function SHR3() {
-        var jz = jsr;
-        var jzr = jsr;
-        jzr ^= (jzr << 13);
-        jzr ^= (jzr >>> 17);
-        jzr ^= (jzr << 5);
-        jsr = jzr;
-        return (jz + jzr) | 0;
-    }
-
-    function UNI() {
-        return 0.5 * (1 + SHR3() / -Math.pow(2, 31));
-    }
-
-    function zigset() {
-        // seed generator based on current time
-        jsr ^= new Date().getTime();
-
-        var m1 = 2147483648.0;
-        var dn = 3.442619855899;
-        var tn = dn;
-        var vn = 9.91256303526217e-3;
-
-        var q = vn / Math.exp(-0.5 * dn * dn);
-        kn[0] = Math.floor((dn / q) * m1);
-        kn[1] = 0;
-
-        wn[0] = q / m1;
-        wn[127] = dn / m1;
-
-        fn[0] = 1.0;
-        fn[127] = Math.exp(-0.5 * dn * dn);
-
-        for (var i = 126; i >= 1; i--) {
-            dn = Math.sqrt(-2.0 * Math.log(vn / dn + Math.exp(-0.5 * dn * dn)));
-            kn[i + 1] = Math.floor((dn / tn) * m1);
-            tn = dn;
-            fn[i] = Math.exp(-0.5 * dn * dn);
-            wn[i] = dn / m1;
+    else {
+        if ($('e').valueAsNumber > 2) {
+            return $('e').valueAsNumber / ($('e').valueAsNumber - 2);
         }
+        else return NaN;
     }
-    zigset();
+}
+function Variance(distr) {
+    if (distr == "uniform") {
+        return Math.pow($('b').valueAsNumber - $('a').valueAsNumber, 2) / 12;
+    }
+    else if (distr == "exponential") {
+        return Math.pow($('c').valueAsNumber, -2);
+    }
+    else if (distr == "normal") {
+        return $('h').valueAsNumber;
+    }
+    else if (distr == "khi") {
+        return 2*$('d').valueAsNumber;
+    }
+    else if (distr == "stu") {
+        if ($('d').valueAsNumber > 2) {
+            return $('d').valueAsNumber / ($('d').valueAsNumber-2);
+        }
+        return NaN;
+    }
+    else {
+        if ($('e').valueAsNumber > 2) {
+            return 2 * Math.pow($('e').valueAsNumber, 2) * ($('e').valueAsNumber + $('d').valueAsNumber - 2) / ($('d').valueAsNumber * Math.pow($('e').valueAsNumber - 2, 2) * ($('e').valueAsNumber-4));
+        }
+        else return NaN;
+    }
 }
 
-function zig(size) {
-    var r = [];
-    var z = new Ziggurat();
-    for (var i = 0; i < size; i++) {
-
-        r[i] = z.nextGaussian();
-    }
-    return r.sort((a, b) => a - b);
+function Deviation(distr) {
+    return Math.sqrt(Variance(distr));
 }
 function Clearcanvas() {
     var canvas = document.getElementById('canvas');
@@ -482,42 +583,101 @@ function CreateAxis() {
 function Drawgraphic() {
     if (document.getElementById('1').checked) {
         var x = UniformDistribution(+(document.getElementById('a').value), +(document.getElementById('b').value), 20000);
-        var y = UniformDistribution_DistibutionFunction(x, +(document.getElementById('a').value), +(document.getElementById('b').value));
-        let c = document.getElementById('canvas').getContext('2d');
-        c.beginPath();
-        c.lineWidth = "7px";
-        c.moveTo(0, 500);
-        c.lineTo((x[0] + 4) * 100, 500 - y[0] * 500);
-        c.moveTo((x[x.length - 1] + 4) * 100, 0);
-        c.lineTo(900, 0);
-        c.strokeStyle = "#00f";
-        c.stroke();
-        c.closePath();
+        if (document.getElementById('f1').checked) {
+            var y = UniformDistribution_DistibutionFunction(x, +(document.getElementById('a').value), +(document.getElementById('b').value));
+
+            let c = document.getElementById('canvas').getContext('2d');
+            c.beginPath();
+            c.lineWidth = "7px";
+            c.moveTo(0, 500);
+            c.lineTo((x[0] + 4) * 100, 500 - y[0] * 500);
+            c.moveTo((x[x.length - 1] + 4) * 100, 0);
+            c.lineTo(900, 0);
+            c.strokeStyle = "#00f";
+            c.stroke();
+            c.closePath();
+        }
+        else var y = Uniform_Density(x, +(document.getElementById('a').value), +(document.getElementById('b').value));
+        var me = Math_Expectation('uniform');
+        var va = Variance('uniform');
+        var dev = Deviation('uniform');
     }
     else if (document.getElementById('2').checked) {
-        var x = ExponentialDistribution(+(document.getElementById('c').value));
-        var y = ExponentialDistribution_DistributionFunction(x, +(document.getElementById('c').value));
+        var x = ExponentialDistribution(+(document.getElementById('c').value), 20000);
+        if (document.getElementById('f1').checked) {
+            var y = ExponentialDistribution_DistributionFunction(x, +(document.getElementById('c').value));
+        }
+        else {
+            var y = Exp_Density(x, +(document.getElementById('c').value));
+        }
+        var me = Math_Expectation('exponential');
+        var va = Variance('exponential');
+        var dev = Deviation('exponential');
     }
     else if (document.getElementById('3').checked) {
-        var x = Gauss(20000);
-        var y = Gauss_Laplas_Distribution_Distribution_Function(x);
+        var x = Gauss(20000, $('g').valueAsNumber, $('h').valueAsNumber);
+        if (document.getElementById('f1').checked) {
+            var y = Gauss_Laplas_Distribution_Distribution_Function(x);
+        }
+        else var y = Gauss_Density(x);
+        var me = Math_Expectation('normal');
+        var va = Variance('normal');
+        var dev = Deviation('normal');
     }
     else if (document.getElementById('4').checked) {
         var x = Khi_Square_Distribution(document.getElementById('d').valueAsNumber, 20000);
-        var y = Khi_Square_Distribution_Distribution_Function(x, document.getElementById('d').valueAsNumber);
+        if (document.getElementById('f1').checked) {
+            var y = Khi_Square_Distribution_Distribution_Function(x, document.getElementById('d').valueAsNumber);
+        }
+        else {
+            var y = Khi_Density(x, document.getElementById('d').valueAsNumber);
+        }
+        var me = Math_Expectation('khi');
+        var va = Variance('khi');
+        var dev = Deviation('khi');
     }
     else if (document.getElementById('5').checked) {
         var x = Student_Distribution(document.getElementById('d').valueAsNumber);
-        var y = Student_Distribution_Distribution_Function(x, document.getElementById('d').valueAsNumber);
+        if (document.getElementById('f1').checked) {
+            var y = Student_Distribution_Distribution_Function(x, document.getElementById('d').valueAsNumber);
+        }
+        else {
+            var y = Student_Density(x, document.getElementById('d').valueAsNumber);
+        }
+        var me = Math_Expectation('stu');
+        var va = Variance('stu');
+        var dev = Deviation('stu');
     }
     else if (document.getElementById('6').checked) {
         var x = Fisher_Distribution(document.getElementById('d').valueAsNumber, document.getElementById('e').valueAsNumber);
-        var y = Fisher_Function(x, document.getElementById('d').valueAsNumber, document.getElementById('e').valueAsNumber);
+        if (document.getElementById('f1').checked) {
+            var y = Fisher_Function(x, document.getElementById('d').valueAsNumber, document.getElementById('e').valueAsNumber);
+        }
+        else {
+            var y = Fisher_Density(x, document.getElementById('d').valueAsNumber, document.getElementById('e').valueAsNumber);
+        }
+        var me = Math_Expectation('fish');
+        var va = Variance('fish');
+        var dev = Deviation('fish');
     }
     else if (document.getElementById('7').checked) {
-        var x = zig(20000);
-        var y = Gauss_Laplas_Distribution_Distribution_Function(x);
+        var x = CreateZiggurat(20000, $('g').valueAsNumber, $('h').valueAsNumber);
+        if (document.getElementById('f1').checked) {
+            var y = Gauss_Laplas_Distribution_Distribution_Function(x);
+        }
+        else {
+            var y = Gauss_Density(x);
+        }
+        var me = Math_Expectation('normal');
+        var va = Variance('normal');
+        var dev = Deviation('normal');
     }
+    for (let el of document.getElementsByClassName('stat')) {
+        el.style.display = 'block';
+    }
+    document.getElementById('me').innerHTML = ("Math expectation: " + me);
+    document.getElementById('va').innerHTML = ("Variance: " + va);
+    document.getElementById('sig').innerHTML = ("Deviation: " + dev);
     var c = document.getElementById('canvas').getContext('2d');
     c.beginPath();
     c.moveTo((x[0]+4)*100, 500-y[0]*500);

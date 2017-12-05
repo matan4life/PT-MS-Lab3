@@ -32,3 +32,24 @@ input{
 canvas{
 	border:dashed;
 }
+#unif {
+	display:none;
+}
+#exp {
+	display: none;
+}
+#norm {
+	display: none;
+}
+#khi {
+	display: none;
+}
+#stu {
+	display: none;
+}
+#fish {
+	display: none;
+}
+.stat{
+	display:none;
+}
