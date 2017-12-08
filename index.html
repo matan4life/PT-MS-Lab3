@@ -1,4 +1,4 @@
-<html>
+﻿<html>
     <head>
         <meta charset="UTF-8" />
         <meta name='language' content='RU'>
@@ -21,7 +21,9 @@
         Хи-квадрат: <input type="radio" name="" id="4" onclick="CheckRadio('4')" />
         Стьюдента: <input type="radio" name="" id="5" onclick="CheckRadio('5')" />
         Фишера: <input type="radio" name="" id="6" onclick="CheckRadio('6')" />
+        <p>
         Зиккуратыч: <input type="radio" name="" id="7" onclick="CheckRadio('7')" />
+            </p>
             <br />
         Границы диапазона:
         a: <input type="number" name="n" value="0" id = "a">
@@ -30,8 +32,8 @@
         k1: <input type="number" name="n" value="1" id="d" />
         k2: <input type="number" name="n" value="1" id="e" />
         size : <input type="number" name="n" value="1" id="f" />
-        μ: <input type="number" name="n" value="1" id="g" />
-        σ: <input type="number" name="n" value="1" id="h" />
+        μ: <input type="number" name="n" value="0" id="g" step="0.1"/>
+        σ: <input type="number" name="n" value="1" id="h" step="0.1"/>
         <br>
         <button onclick="Drawgraphic()">Кудахтер, рисуй</button>
         <button onclick="Clearcanvas()">Кудахтер, очисть</button>
@@ -90,8 +92,8 @@
                 <p>Функция плотности: $${f(x) } = {\sqrt {(d_1 x)^{d_1} d_2^{d_2} \over (d_1 x + d_2)^{d_1+d_2}} \over x Β\left({d_1 \over 2}, {d_2 \over 2}\right)}$$</p>
                 <p>Параметры: $${d_1, d_2} - \text {числа степеней свободы}.$$ </p>
                 <p>Мат.ожидание: $${M[X]} = {d_2 \over d_2-2}, {d_2 \gt 2}$$</p>
-                <p>Дисперсия: $${D[X]} = {2d_2^2(d_1+d_2-2) \over d_1(d_2-2)^2 (d_2-4)}, {d_2 \gt 2}$$</p>
-                <p>Среднеквадратическое отклонение: $${σ} = {d_2 \over d_2-2}{\sqrt{2(d_1+d_2-2) \over d_1(d_2-4)}}, {n \gt 2}$$</p>
+                <p>Дисперсия: $${D[X]} = {2d_2^2(d_1+d_2-2) \over d_1(d_2-2)^2 (d_2-4)}, {d_2 \gt 4}$$</p>
+                <p>Среднеквадратическое отклонение: $${σ} = {d_2 \over d_2-2}{\sqrt{2(d_1+d_2-2) \over d_1(d_2-4)}}, {d_2 \gt 4}$$</p>
             </div>
         </div>
         <footer>

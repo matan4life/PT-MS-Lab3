@@ -116,10 +116,10 @@ function Formulas(id) {
         document.getElementById('fish').style.display = 'block';
     }
 }
-function Gauss_Density(x) {
+function Gauss_Density(x, mu, sigma) {
     let res = [];
     for (let elem of x) {
-        res.push(Math.exp(-Math.pow(elem, 2)/2) / Math.sqrt(2 * Math.PI));
+        res.push(Math.exp(-(Math.pow(elem, 2) - mu) / (2 * sigma * sigma)) / (sigma * Math.sqrt(2 * Math.PI)));
     }
     return res;
 }
@@ -213,10 +213,10 @@ function erf(x) {
     var y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
     return sign * y; // erf(-x) = -erf(x);
 }
-function Gauss_Laplas_Distribution_Distribution_Function(x) {
+function Gauss_Laplas_Distribution_Distribution_Function(x, mu, sigma) {
     let y = [];
     for (let elem of x) {
-        y.push((1 + erf(elem / Math.sqrt(2))) / 2);
+        y.push((1 + erf((elem - mu) / Math.sqrt(2*Math.pow(sigma, 2))) / 2));
     }
     return y;
 }
@@ -542,7 +542,7 @@ function Variance(distr) {
         return NaN;
     }
     else {
-        if ($('e').valueAsNumber > 2) {
+        if ($('e').valueAsNumber > 4) {
             return 2 * Math.pow($('e').valueAsNumber, 2) * ($('e').valueAsNumber + $('d').valueAsNumber - 2) / ($('d').valueAsNumber * Math.pow($('e').valueAsNumber - 2, 2) * ($('e').valueAsNumber-4));
         }
         else return NaN;
@@ -617,9 +617,9 @@ function Drawgraphic() {
     else if (document.getElementById('3').checked) {
         var x = Gauss(20000, $('g').valueAsNumber, $('h').valueAsNumber);
         if (document.getElementById('f1').checked) {
-            var y = Gauss_Laplas_Distribution_Distribution_Function(x);
+            var y = Gauss_Laplas_Distribution_Distribution_Function(x, $('g').valueAsNumber, $('h').valueAsNumber);
         }
-        else var y = Gauss_Density(x);
+        else var y = Gauss_Density(x, $('g').valueAsNumber, $('h').valueAsNumber);
         var me = Math_Expectation('normal');
         var va = Variance('normal');
         var dev = Deviation('normal');
@@ -663,10 +663,10 @@ function Drawgraphic() {
     else if (document.getElementById('7').checked) {
         var x = CreateZiggurat(20000, $('g').valueAsNumber, $('h').valueAsNumber);
         if (document.getElementById('f1').checked) {
-            var y = Gauss_Laplas_Distribution_Distribution_Function(x);
+            var y = Gauss_Laplas_Distribution_Distribution_Function(x, $('g').valueAsNumber, $('h').valueAsNumber);
         }
         else {
-            var y = Gauss_Density(x);
+            var y = Gauss_Density(x, $('g').valueAsNumber, $('h').valueAsNumber);
         }
         var me = Math_Expectation('normal');
         var va = Variance('normal');
